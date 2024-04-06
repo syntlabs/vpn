@@ -1,4 +1,4 @@
-package Antares_vpn
+package main
 
 import (
 	"fmt"
@@ -7,39 +7,44 @@ import (
 )
 
 var netErr = networkErrors{
-	http404:              []string{"404", "not found"},
-	http403:              []string{"403", "bad gateway"},
-	http500:              []string{"500", "server error"},
-	http200:              []string{"200", "ok"},
-	brokenResponse:       []string{"brokenResponseError", "Error occured when tried to get response"},
-	brokenRequest:        []string{"brokenRequestError", "Validate request params"},
-	noInternetConnection: []string{"NoInternetError", "Please make sure thar you are connected to the internet"},
-	jsonConversionError:  []string{"JsonConversionError", "Failed to convert response body to []byte"},
+	Http404:              []string{"Http404", "Not found"},
+	Http403:              []string{"Http403", "Bad gateway"},
+	Http500:              []string{"Http500", "Server error"},
+	Http200:              []string{"Http200", "Ok"},
+	BrokenResponse:       []string{"BrokenResponseError", "Error occured when tried to get response"},
+	BrokenRequest:        []string{"BrokenRequestError", "Validate request params"},
+	NoInternet: []string{"NoInternetError", "Please make sure thar you are connected to the internet"},
+	JsonConversion:  []string{"JsonConversionError", "Failed to convert response body to []byte"},
 }
 
 var valErr = valueErrors{
-	match:       []string{"MatchError", "Values do not match"},
-	outofbounds: []string{"OutOfBoundsError", "Value is out of bounds in given range"},
-	timepointer: []string{"TimePointerError", "Subscription Time value type should be equal to predefined type"},
-	wrongType:   []string{"WrongTypeError", "Value type is wrong"},
+	Match:       []string{"MatchError", "Values do not match"},
+	OutOfBounds: []string{"OutOfBoundsError", "Value is out of bounds in given range"},
+	TimePointer: []string{"TimePointerError", "Subscription Time value type should be equal to predefined type"},
+	WrongType:   []string{"WrongTypeError", "Value type is wrong"},
+	WrongLanguage: []string{"WrongLanguageError", "Language does not match required"}
 }
 
 var logErr = logicErrors{
-	logicErr:     []string{"LogicError", "Some logic error happened here"},
-	saltError:    []string{"SaltError", "Salts sizeof is bigger than max uin8(255) or salt is nil"},
-	cantOpenFile: []string{"CantOpenFileError", "System can not open file because its either not exist or broken"},
+	Logic:     []string{"LogicError", "Some logic error happened here"},
+	Salt:    []string{"SaltError", "Salts sizeof is bigger than max uin8(255) or salt is nil"},
+	CantOpenFile: []string{"CantOpenFileError", "System can not open file because its either not exist or broken"},
+	FileFormat: []string{"FileFormatError", "File format does not match required"},
 }
 
 var cyphErr = cypherErrors{
-	cypherBlockError:  []string{"CypherBlockError", "Error occured when tries to creat block cypher"},
-	cypherSizeofError: []string{"CypherSizeofError", "Make sure bytes sizeof does not exceed max unit8"},
-	cypherDecodeError: []string{"CypherDecodeError", "Error occured when tries to decode cypher"},
-	cypherMethodError: []string{"CypherMethodError", "Bad cypher error"},
+	Block:  []string{"BlockError", "Error occured when tries to creat block cypher"},
+	Sizeof: []string{"SizeofError", "Make sure bytes sizeof does not exceed max unit8"},
+	Decode: []string{"DecodeError", "Error occured when tries to decode cypher"},
+	Method: []string{"MethodError", "Method cypher error"},
+	Key: []string{"KeyError", "No public cert key was found"},
+	Cert: []string{"CertError", "No cert was found"},
+	PairCert: []string{"PairCertError", "Error occured when tried to creade cert-pubKey pair"},
 }
 
-var ErrorsGlobal = errHandler{
-	network: netErr, value: valErr, logic: logErr,
-	cypher: cyphErr,
+var Err = errHandler{
+	net: netErr, val: valErr, logic: logErr,
+	cyph: cyphErr,
 }
 
 func annihilate() {
@@ -47,6 +52,5 @@ func annihilate() {
 }
 
 func raise(raisingError []string) {
-
 	fmt.Print(strings.Join(raisingError, " "))
 }

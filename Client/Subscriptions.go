@@ -1,7 +1,7 @@
 package main
 
 import (
-	main2 "awesomeProject/Client/Network"
+	"Client/Network"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -19,17 +19,17 @@ func accessIsAllowed(d NetworkDaemon, client Client.UserClient) bool {
 	var payload map[string]string
 	var headers map[string]string
 
-	response, reserr := main2.req(d, uniqSubPath, headers, payload)
+	response, reserr := req(d, uniqSubPath, headers, payload)
 	defer response.Body.Close()
 
 	if reserr != nil {
-		raise(ErrorsGlobal.network.brokenResponse)
+		raise(Err.net.BrokenResponse)
 	}
 
 	rbytes, errjson := json.Marshal(response.Body)
 
 	if errjson != nil {
-		raise(ErrorsGlobal.network.jsonConversionError)
+		raise(Err.net.JsonConversion)
 	}
 
 	var data map[string]any
@@ -43,7 +43,7 @@ func accessIsAllowed(d NetworkDaemon, client Client.UserClient) bool {
 		poi_ty = true
 	default:
 		poi_ty = false
-		raise(ErrorsGlobal.value.timepointer)
+		raise(Err.val.TimePointer)
 	}
 
 	if poi_ty {
