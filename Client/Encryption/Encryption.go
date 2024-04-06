@@ -30,7 +30,7 @@ func encryptFile(key string, data string) (string, error) {
 
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		main.raise(ErrorsGlobal.cypher.cypherBlockError)
+		main.raise(Err.cyph.Block)
 	}
 	cfb_bytes := make([]byte, AES_STD_SIZE)
 	cfb := cipher.NewCFBEncrypter(block, cfb_bytes)
@@ -43,12 +43,12 @@ func encryptFile(key string, data string) (string, error) {
 func decryptFile(key string, data string) (string, error) {
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		main.raise(ErrorsGlobal.cypher.cypherBlockError)
+		main.raise(Err.cyph.Block)
 	}
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(data)))
 	n, err := base64.StdEncoding.Decode(dst, []byte(data))
 	if err != nil {
-		main.raise(ErrorsGlobal.cypher.cypherDecodeError)
+		main.raise(Err.cyph.Decode)
 	}
 	dst = dst[:n]
 	cfb := cipher.NewCFBDecrypter(block, dst)

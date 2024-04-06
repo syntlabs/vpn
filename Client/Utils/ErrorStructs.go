@@ -1,40 +1,44 @@
-package Antares_vpn
+package main
 
 type networkErrors struct {
-	http404,
-	http403,
-	http500,
-	http200,
-	brokenResponse,
-	noInternetConnection,
-	jsonConversionError,
-	brokenRequest []string
+	Http404,
+	Http403,
+	Http500,
+	Http200,
+	BrokenResponse,
+	BrokenRequest,
+	NoInternet,
+	JsonConversion []string
 }
 
 type valueErrors struct {
-	match,
-	outofbounds,
-	wrongType,
-	timepointer,
-	wrongLanguage []string
+	Match,
+	OutOfBounds,
+	TimePointer,
+	WrongType,
+	WrongLanguage []string
 }
 
 type logicErrors struct {
-	logicErr,
-	saltError,
-	cantOpenFile []string
+	Logic,
+	Salt,
+	CantOpenFile,
+	FileFormat []string
 }
 
 type cypherErrors struct {
-	cypherBlockError,
-	cypherMethodError,
-	cypherDecodeError,
-	cypherSizeofError []string
+	Block,
+	Sizeof,
+	Decode,
+	Method,
+	Key,
+	Cert,
+	PairCert []string
 }
 
 type errHandler struct {
-	network networkErrors
-	value   valueErrors
+	net networkErrors
+	val   valueErrors
 	logic   logicErrors
-	cypher  cypherErrors
+	cyph  cypherErrors
 }

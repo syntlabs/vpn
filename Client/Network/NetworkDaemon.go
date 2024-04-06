@@ -24,7 +24,7 @@ type daemonStates interface {
 func (d NetworkDaemon) run() {
 	for {
 
-		res, er := main2.req(d, MAIN_URL_PATH, nil, nil)
+		res, er := req(d, MAIN_URL_PATH, nil, nil)
 
 		if er != nil {
 			d.drop()
