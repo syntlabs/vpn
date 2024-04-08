@@ -26,77 +26,19 @@ type VpnConfig struct {
 	country []string
 }
 
-type 
+func checkInternet() {
 
-func handler() {
-	proxyURL, err := url.Parse(
-		fmt.Sprintf("%s%s%d", TRANSFER_PROTOCOL, MAIN_ROUTE, MAIN_PORT),
-	)
+	response, err = req("https://www.google.com", nil, nil)
 
-	if err != nil {
-		raise(ErrorsGlobal.network.BrokenResponse)
-	}
-
-	client := &http.Client{Transport: transport}
-
-	req, err := http.NewRequest("GET", "https://example.com", nil)
-	if err != nil {
-		raise(ErrorsGlobal.network.BrokenRequest)
-		return
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		raise(ErrorsGlobal.network.BrokenRequest)
-		return
-	}
-	defer resp.Body.Close()
-
-	body, err := json.Marshal(resp.Body)
-	if err != nil {
-		raise(ErrorsGlobal.network.JsonConversionError)
-		return
+	if response.StatusCode != 200 {
+		raise(Err.net.NoConnection)
+		someViewNoInternet()
 	}
 }
 
-func loadNetInit() {
-	config := &tls.Config{
-		RootCAs: certPool,
-	}
+func req(url string, headers, payload map[string]interface{}) (*http.Response, error) {
 
-	transport := &http.Transport{
-		TLSClientConfig: config,
-	}
-
-	client := &http.Client{
-		Transport: transport,
-	}
-}
-
-func serviceAvailable(d NetworkDaemon) bool {
-
-	go func() (avail bool, code int) {
-		for {
-			resp, _ := req(d, MAIN_URL_PATH, nil, nil)
-
-			time.Sleep(d.updateTime * time.Second)
-			fmt.Print("Network daemon is running...")
-
-			if resp.StatusCode != 200 {
-				avail = false
-			}
-
-			return avail, resp.StatusCode
-		}
-	}()
-}
-
-
-func req(
-	daemon NetworkDaemon, url string, headers, payload map[string]string,
-) (*http.Response, error) {
-
-	daemonClient := &http.Client{}
-	request, req_err := http.NewRequest(daemon.method, url, nil)
+	request, req_err := http.NewRequest("GET", url, headers, payload)
 
 	if req_err != nil {
 		raise(Err.net.BrokenRequest)
@@ -113,7 +55,7 @@ func req(
 		}
 	}
 
-	response, res_err := daemonClient.Do(request)
+	response, res_err := mainClient.Do(request)
 
 	if res_err != nil {
 		raise(Err.net.BrokenResponse)

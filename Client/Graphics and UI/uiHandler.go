@@ -5,10 +5,6 @@ type Object struct {
 	group string
 }
 
-type start struct {
-
-}
-
 type __Frame__ struct {
 	Object
 	start    string `fid:"StartFrame"`

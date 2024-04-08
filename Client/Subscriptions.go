@@ -8,18 +8,17 @@ import (
 )
 
 const SUBS_PATH = ""
-const TIME_POINTER = ""
 
-func accessIsAllowed(d NetworkDaemon, client Client.UserClient) bool {
+func subscriptionTime(d NetworkDaemon, client Client.UserClient) bool {
 
 	uniqSubPath := fmt.Sprintf(
 		"%s%s%s%s%s", TRANSFER_PROTOCOL, MAIN_ROUTE, MAIN_PORT, SUBS_PATH, client.fingerprint,
 	)
 
-	var payload map[string]string
-	var headers map[string]string
+	//var payload map[string]string
+	//var headers map[string]string
 
-	response, reserr := req(d, uniqSubPath, headers, payload)
+	response, reserr := req(uniqSubPath, nil, nil)
 	defer response.Body.Close()
 
 	if reserr != nil {
@@ -32,32 +31,14 @@ func accessIsAllowed(d NetworkDaemon, client Client.UserClient) bool {
 		raise(Err.net.JsonConversion)
 	}
 
-	var data map[string]any
+	var data map[string]interface{}
 
 	err := json.Unmarshal(rbytes, &data)
 
-	var poi_ty bool
-
-	switch data[TIME_POINTER].(type) {
-	case float64:
-		poi_ty = true
-	default:
-		poi_ty = false
-		raise(Err.val.TimePointer)
-	}
-
 	if poi_ty {
-		if TimeEnd(float64(time.Now().Minute()), data[TIME_POINTER]) == true {
+		if time.Now().Minute() <= data["subscription_time_left"]) == true {
 			client.subscription := 0
+			viewSubJustEnded()
 		}
-	}
-}
-
-func TimeEnd(start float64, end float64) bool {
-
-	if (end/60)-(start/60) <= 0 {
-		return false
-	} else {
-		return true
 	}
 }

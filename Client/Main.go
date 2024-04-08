@@ -1,7 +1,6 @@
 package main
 
 import (
-	"awesomeProject/Client"
 	"github.com/leaanthony/mewn"
 	"github.com/wailsapp/wails"
 	"time"
@@ -15,6 +14,7 @@ const MAIN_URL_PATH string = ""
 var dIdle = 1 * time.Second.Seconds()
 var dThreads uint8 = 1
 var dMRetries uint8 = 10
+var dUpTime time.Duration = 1
 
 func main() {
 	if firstRun() {
@@ -27,9 +27,13 @@ func main() {
 	n_daemon := NetworkDaemon{
 		endpoint:   MAIN_URL_PATH,
 		idleTime:   dIdle,
+		updateTime: dUpTime,
 		threads:    dThreads,
 		maxRetries: dMRetries,
+		state: "is_active"
 	}
+
+	n_daemon.run()
 }
 
 func first_ever_run() {

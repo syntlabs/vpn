@@ -3,6 +3,8 @@ package main
 import (
 	"runtime"
 	"time"
+	"http"
+	"tls"
 )
 
 type UserClient struct {
@@ -14,24 +16,16 @@ type UserClient struct {
 	passworder,
 	connected,
 	system string
-	subscriptionDays uint16
-	coins            map[string]float32
-	vpnconfig VpnConfig
-	dialer Dialer
-	transport Transport
+	subscription uint16 // in minutes
+	balance            float32
 }
 
 type Usermethods interface {
-	update(newSpecs map[string]interface) UserClient
+	update(newSpecs map[string]interface{}) UserClient
 	remove()
 }
 
-func (user UserClient) update(newSpecs  map[string]interface) UserClient {
-
-	for field, update := range newSpecs {
-
-	}
-}
+func (user UserClient) update(newSpecs  map[string]interface{}) UserClient {}
 
 func createMainClient() {
 
@@ -41,12 +35,22 @@ func createMainClient() {
 		raise(Err.val.WrongLanguage)
 	}
 
+	var mneumonic := generateMneumonic(12)
+
+	cert, certPool = certnpool()
+
 	startVpnConfig = VpnConfig{{""}, {""}}
+
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      certPool,
+	}
 
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
 	}
+
 	transport := &http.Transport{
 		Proxy:                 http.ProxyURL(proxyURL),
 		DialTLSContext:        dialer.Dial,
@@ -61,7 +65,7 @@ func createMainClient() {
 		coins:            nil,
 		vpnLocation:      "std",
 		theme:            "std",
-		fingerprint:      hashUnique(time.Now().UnixMilli(), salt(SALT_SIZE)),
+		fingerprint:      hashMnem(mneumonic),
 		passworder:       "no",
 		connected:        "",
 		subscriptionDays: 0,

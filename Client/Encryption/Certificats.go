@@ -5,11 +5,12 @@ import (
 	"net"
 )
 
-func getKey(pkX string) []byte {
+func getKey(keyPath string) []byte {
 
-	validFileFormat(pkX, ".pem")
+	validFileFormat(keyPath, ".pem")
 
 	keyX, xerr := os.ReadFile(os.Getenv(pkX))
+
 	if xerr != nil {
 		raise(Err.cyph.Key)
 	}
@@ -22,6 +23,7 @@ func getCert(certPath string) []byte {
 	validFileFormat(certPath, ".pem")
 
 	cert, err := os.ReadFile(os.Getenv(certPath))
+
 	if err != nil {
 		raise(Err.cyph.Cert)
 	}
@@ -34,6 +36,7 @@ func certnpool() (tls.Certificate, *x509.CertPool) {
 	key := getKey(keypath)
 	cert := getCert(certpath)
 	tlsCert, err := tls.X509KeyPair(cert, key)
+
 	if err != nil {
 		raise(Err.cyph.PairCert)
 	}
@@ -42,8 +45,4 @@ func certnpool() (tls.Certificate, *x509.CertPool) {
 	certPool.AppendCertsFromPEM(cert)
 
 	return tlsCert, certPool
-}
-
-func exchangeCerts () {
-	
 }
