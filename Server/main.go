@@ -148,18 +148,41 @@ func handle_connection(conn net.Conn, config *Server_config) {
 		return
 	}
 
-	// Relay data between the client and the destination
-	var wg sync.WaitGroup
-	wg.Add(2)
-	go func() {
-		io.Copy(destConn, conn)
-		destConn.Close()
-		wg.Done()
-	}()
-	go func() {
-		io.Copy(conn, destConn)
-		conn.Close()
-		wg.Done()
-	}()
-	wg.Wait()
+	if config.subscription_port > 0 && config.subscription_network != "" {
+        // Subscription-based connection
+        // Create a new listener for the subscription-based connections
+        subscriptionListener, err := net.Listen(config.subscription_network, fmt.Sprintf(":%d", config.subscription_port))
+        if err != nil {
+            log.Printf("Failed to listen for subscription-based connections: %v", err)
+            return
+        }
+        defer subscriptionListener.Close()
+
+        // Accept the subscription-based connection
+        subscriptionConn, err := subscriptionListener.Accept()
+        if err != nil {
+            log.Printf("Failed to accept subscription-based connection: %v", err)
+            return
+        }
+        defer subscriptionConn.Close()
+
+        // Relay data between the client and the subscription-based connection
+        var wg sync.WaitGroup
+        wg.Add(2)
+        go func() {
+            io.Copy(subscriptionConn, conn)
+            subscriptionConn.Close()
+            wg.Done()
+        }()
+        go func() {
+            io.Copy(conn, subscriptionConn)
+            conn.Close()
+            wg.Done()
+        }()
+        wg.Wait()
+    } else {
+        // Free connection
+        // Process the SOCKS5 request and relay data as before
+        // ...
+    }
 }
