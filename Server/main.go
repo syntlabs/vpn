@@ -126,15 +126,7 @@ func handle_connection(conn net.Conn, config *Server_config) {
 		return
 	}
 
-	if port == 80 && buf[0] == 0 {
-		log.Println("User is trying to connect to port 80 without authentication. Connection rejected.")
-		_, err = conn.Write([]byte{5, 1, 0, 8, 0, 0, 0, 0, 0, 0}) // Send a SOCKS5 response with "connection not allowed by ruleset" error
-		if err != nil {
-			log.Printf("Failed to send SOCKS5 response: %v", err)
-			return
-		}
-		return
-	}
+	
 	// Connect to the destination
 	destConn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
@@ -180,6 +172,35 @@ func handle_connection(conn net.Conn, config *Server_config) {
             wg.Done()
         }()
         wg.Wait()
+    } else if config.promo_code != "" {
+        // Promo code-based connection
+        // Read the promo code from the client
+        buf = make([]byte, 256)
+        _, err = io.ReadFull(conn, buf)
+        if err != nil {
+            return
+        }
+
+        promoCodeLen := int(buf[0])
+        promoCodeBuf := make([]byte, promoCodeLen)
+        _, err = io.ReadFull(conn, promoCodeBuf)
+        if err != nil {
+            return
+        }
+
+        // Check if the provided promo code is valid
+        if string(promoCodeBuf) == config.promo_code {
+            // Promo code is valid, allow access to the paid network
+            // Process the SOCKS5 request and relay data as before
+            // ...
+        } else {
+            // Promo code is invalid, return an error
+            _, err = conn.Write([]byte{5, 1, 0, 8, 0, 0, 0, 0, 0, 0}) // Send a SOCKS5 response with "connection not allowed by ruleset" error
+            if err != nil {
+                return
+            }
+            return
+        }
     } else {
         // Free connection
         // Process the SOCKS5 request and relay data as before
