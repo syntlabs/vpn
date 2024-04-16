@@ -76,6 +76,30 @@ func handle_connection(conn net.Conn, config *Server_config) {
 		return
 	}
 
+	usernameLen := int(buf[0])
+    usernameBuf := make([]byte, usernameLen)
+    _, err = io.ReadFull(conn, usernameBuf)
+    if err != nil {
+        return
+    }
+
+    _, err = io.ReadFull(conn, buf[:1])
+    if err != nil {
+        return
+    }
+
+    passwordLen := int(buf[0])
+    passwordBuf := make([]byte, passwordLen)
+    _, err = io.ReadFull(conn, passwordBuf)
+    if err != nil {
+        return
+    }
+
+    // Check if the provided username and password are valid
+    if string(usernameBuf) != config.auth_username || string(passwordBuf) != config.auth_password {
+        return
+    }
+
 	// Read the destination address and port
 	addrType := buf[3]
 	var addr string
