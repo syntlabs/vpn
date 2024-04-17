@@ -75,7 +75,7 @@ func handle_connection(conn net.Conn, config *Server_config) {
 	if buf[0] != 5 || buf[1] != 1 {
 		return
 	}
-
+	//
 	usernameLen := int(buf[0])
     usernameBuf := make([]byte, usernameLen)
     _, err = io.ReadFull(conn, usernameBuf)
@@ -87,7 +87,7 @@ func handle_connection(conn net.Conn, config *Server_config) {
     if err != nil {
         return
     }
-
+	//
     passwordLen := int(buf[0])
     passwordBuf := make([]byte, passwordLen)
     _, err = io.ReadFull(conn, passwordBuf)
