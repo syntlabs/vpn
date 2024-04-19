@@ -1,17 +1,8 @@
-name: SecurityPipeline
-
-on: [push]
-
-jobs:
-  horusec-security:
-    name: horusec-security
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v2
-      with: # Required when commit authors is enabled
-        fetch-depth: 0
-    - name: Running Horusec Security
-      run: |
-        curl -fsSL https://raw.githubusercontent.com/ZupIT/horusec/main/deployments/scripts/install.sh | bash -s latest
-        horusec start -p="./" -e="true"
+            - name: Horusec
+  # You may pin to the exact commit or the version.
+  # uses: fike/horusec-action@a9e9d26f046539bc18864457a32e259658674f9a
+  uses: fike/horusec-action@v0.2.2
+  with:
+    # Arguments for horusec
+    arguments: # optional
+          
