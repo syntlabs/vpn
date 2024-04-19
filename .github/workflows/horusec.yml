@@ -1,8 +1,12 @@
-            - name: Horusec
-  # You may pin to the exact commit or the version.
-  # uses: fike/horusec-action@a9e9d26f046539bc18864457a32e259658674f9a
-  uses: fike/horusec-action@v0.2.2
-  with:
-    # Arguments for horusec
-    arguments: # optional
-          
+on: [push]
+
+jobs:
+  checking_code:
+    runs-on: ubuntu-latest
+    name: Horusec Scan
+    steps:
+      - name: Run Horusec
+        id: run_horusec
+        uses: fike/horusec-action@v0.2.2
+        with:
+          arguments: # not yet
