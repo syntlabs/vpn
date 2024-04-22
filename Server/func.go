@@ -6,26 +6,31 @@ import (
 	"os/exec"
 )
 
-}
+const (
+	freeConfigURL = "https://example.com/free-config"
+	paidConfigURL = "https://example.com/paid-config"
+)
+
 func checkSubscription(userID int) bool {
 
 	return true // For TON FunC Contact
 }
+
 func sendConfigRequest(subscription string) {
 	var url string
 	switch subscription {
 	case "free":
-		url = "https://example.com/free-config"
+		url = freeConfigURL
 	case "paid":
-		url = "https://example.com/paid-config"
+		url = paidConfigURL
 	default:
-		fmt.Println("Invalid subscription type")
+		panic("Invalid subscription type")
 		return
 	}
 
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Error sending config request:", err)
+		panic(fmt.Sprintf("Error sending config request:", err))
 		return
 	}
 	defer resp.Body.Close()
