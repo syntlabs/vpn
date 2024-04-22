@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os/exec"
 )
 
 }
@@ -35,4 +36,22 @@ func sendConfigRequest(subscription string) {
 	fmt.Println("Config request sent successfully")
 }
 
+// Функция для добавления пользователя
+func addUser(username, password string) error {
+	cmd := exec.Command("ssserver", "-u", "-c", "/путь/к/конфигурации/shadowsocks.json", "-p", "порт", "-k", "пароль", "-m", "метод", "--adduser", username, password)
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
+// Функция для удаления пользователя
+func removeUser(username string) error {
+	cmd := exec.Command("ssserver", "-u", "-c", "/путь/к/конфигурации/shadowsocks.json", "-p", "порт", "-k", "пароль", "-m", "метод", "--removeuser", username)
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
