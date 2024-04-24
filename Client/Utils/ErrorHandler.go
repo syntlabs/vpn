@@ -8,7 +8,7 @@ import (
 
 var netErr = networkErrors{
 	Http404:              []string{"Http404", "Not found"},
-	Http403:              []string{"Http403", "Bad gateway"},
+	Http403:              []string{"Http403", "Bad db"},
 	Http500:              []string{"Http500", "Server error"},
 	Http200:              []string{"Http200", "Ok"},
 	BrokenResponse:       []string{"BrokenResponseError", "Error occured when tried to get response"},

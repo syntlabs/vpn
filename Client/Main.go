@@ -1,4 +1,4 @@
-package main
+package Utils
 
 import (
 	"github.com/leaanthony/mewn"

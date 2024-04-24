@@ -1,10 +1,12 @@
-package main
+package Utils
 
 import (
+	"crypto/tls"
+	"net"
+	"net/http"
 	"runtime"
 	"time"
-	"http"
-	"tls"
+	"utils.go"
 )
 
 type UserClient struct {
