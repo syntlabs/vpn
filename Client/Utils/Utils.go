@@ -27,9 +27,13 @@ func firstRun() bool {
 	return false
 }
 
+func getSystem() string {
+	return runtime.GOOS
+}
+
 func getSystemLanguage() (string, error) {
 	var cmd *exec.Cmd
-	switch runtime.GOOS {
+	switch getSystem() {
 	case "darwin":
 		cmd = exec.Command("defaults", "read", "-g", "AppleLanguages")
 	case "linux":
@@ -37,7 +41,7 @@ func getSystemLanguage() (string, error) {
 	case "windows":
 		cmd = exec.Command("cmd", "/c", "echo %LANG%")
 	default:
-		return "", fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
+		return "", fmt.Errorf("unsupported operating system: %s", getSystem())
 	}
 
 	output, err := cmd.Output()
@@ -46,7 +50,7 @@ func getSystemLanguage() (string, error) {
 	}
 
 	language := strings.TrimSpace(string(output))
-	if runtime.GOOS == "darwin" {
+	if getSystem() == "darwin" {
 		language = strings.ReplaceAll(language, "([", "")
 		language = strings.ReplaceAll(language, "])", "")
 		language = strings.Split(language, ", ")[0]

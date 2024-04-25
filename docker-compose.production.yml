@@ -1,0 +1,22 @@
+version: '3'
+
+volumes:
+  pg_data:
+
+services:
+  db:
+    image: postgres:13.10
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  core:
+    depends_on:
+    - db
+    image: syntlabs/vpn_core
+    volumes:
+      - pg_data
+  notifications:
+    depends_on:
+      - core
+    image: syntlabs/vpn_notifications
+    volumes:
+      - pg_data:/var/lib/postgresql/data
