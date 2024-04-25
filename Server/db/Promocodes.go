@@ -1,8 +1,10 @@
-package db
+package Promocodes
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/sha256"
+	"encoding/base64"
 	"log"
 	"math/rand"
 	"os"
@@ -23,6 +25,8 @@ const nPr = 100000
 const threads = 4
 const grandMode = "one"
 
+var globVault = os.Getenv("hashes")
+
 var salt string = os.Getenv("Salt")
 
 func promgen(promSize int) (string, [sha256.Size]byte) {
@@ -37,6 +41,24 @@ func isValid(prom string, salt string) {
 	checkBytes := bytes.Join([][]byte{[]byte(prom), []byte(salt)}, nil)
 
 	checkhash := sha256.Sum256(checkBytes)
+
+	file, err := os.Open(globVault)
+	if err != nil {
+		panic(runtime.PanicNilError{})
+	}
+
+	sc := bufio.NewScanner(file)
+
+	for sc.Scan() {
+
+		line := sc.Text()
+
+		if line == base64.StdEncoding.EncodeToString(checkhash[:]) {
+			//uniq promocode found
+		} else {
+			panic(runtime.PanicNilError{})
+		}
+	}
 }
 
 func main() {
@@ -53,24 +75,22 @@ func main() {
 	saveData(&data)
 }
 
-func createProms(thr int) [][2]interface{} {
+func createProms(thr int) [][]interface{} {
 
-	var promocodes = make([][2]interface{}, nPr)
+	var promocodes = make([][]interface{}, nPr)
 	var wg sync.WaitGroup
 
 	job := func() {
 		defer log.Printf("Work (promgen) is done")
 
-		for _ = range nPr / thr {
-
+		for i := 0; i < nPr/thr; i++ {
 			slice := []interface{}{promgen(prSize)}
 
-			promocodes = slices.Insert(promocodes, 0, promgen(prSize))
+			promocodes = slices.Insert(promocodes, 0, slice)
 		}
 	}
 
 	if thr > 1 {
-		_ = runtime.GOMAXPROCS(threads)
 		for _ = range thr {
 			go job()
 		}
@@ -82,7 +102,7 @@ func createProms(thr int) [][2]interface{} {
 	return promocodes
 }
 
-func saveData(data ...interface{}) {
+func saveData(data interface{}) {
 
 	const vault = ""
 
@@ -93,7 +113,7 @@ func saveData(data ...interface{}) {
 		panic(runtime.PanicNilError{})
 	}
 
-	file.Write(data)
+	//writer := bufio.NewWriter()
 }
 func RandStringBytesMaskImprSrcSB(n int) (string, []byte) {
 	sb := strings.Builder{}
