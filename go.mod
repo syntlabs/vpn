@@ -6,6 +6,8 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/abadojack/whatlanggo v1.0.1 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
+	github.com/cameo-engineering/tonconnect v0.0.0-20231227090149-eee8e0548afc // indirect
+	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/fstanis/screenresolution v0.0.0-20190527020317-869904d15333 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -18,6 +20,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
+	github.com/kevinburke/nacl v0.0.0-20210405173606-cd9060f5f776 // indirect
 	github.com/labstack/echo/v4 v4.12.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.1 // indirect
@@ -42,6 +45,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/syossan27/tebata v0.0.0-20180602121909-b283fe4bc5ba // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
+	github.com/tmaxmax/go-sse v0.7.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wailsapp/go-webview2 v1.0.10 // indirect
@@ -52,6 +56,7 @@ require (
 	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f // indirect
 	golang.org/x/image v0.15.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/AlecAivazis/survey.v1 v1.8.8 // indirect

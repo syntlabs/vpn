@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-}
+
 func checkSubscription(userID int) bool {
 
 	return true // For TON FunC Contact
