@@ -82,6 +82,5 @@ func main() {
 		addr,
 	)
 
-	sendConfigRequest("free") // Send request for free config
-	sendConfigRequest("paid") // Send request for paid config
+	sendConfigRequest(addr) // Send request for config
 }
