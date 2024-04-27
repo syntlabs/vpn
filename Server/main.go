@@ -1,23 +1,18 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"log"
-	"time"
 	"context"
 	"crypto/rand"
 	"encoding/base32"
-	"golang.org/x/exp/maps"
+	"fmt"
 	"github.com/cameo-engineering/tonconnect"
-
+	"golang.org/x/exp/maps"
+	"log"
+	"os"
+	"time"
 )
 
 var config_path string = os.Getenv("")
-
-const maxThreads = 10
-
-var goPoolin = make(chan struct{}, maxThreads)
 
 func main() {
 	s, err := tonconnect.NewSession()

@@ -2,16 +2,16 @@ package Promocodes
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/sha256"
-	"encoding/base64"
-	"log"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"math/rand"
+	"net/http"
 	"os"
 	"runtime"
-	"slices"
 	"strings"
-	"sync"
+	"time"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -20,102 +20,140 @@ const (
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
-const prSize = 8
-const nPr = 100000
-const threads = 4
-const grandMode = "one"
 
-var globVault = os.Getenv("hashes")
-
-var salt string = os.Getenv("Salt")
-
-func promgen(promSize int) (string, [sha256.Size]byte) {
-
-	var ps, pb = RandStringBytesMaskImprSrcSB(promSize)
-
-	return ps, sha256.Sum256(append(pb, []byte(salt)...))
+type userStruct struct {
+	prom     string
+	timeLeft time.Time
 }
 
-func isValid(prom string, salt string) {
+const prSize = 8
+const checkdelay = 60 // SECONDS
+const prefix = "Synt"
 
-	checkBytes := bytes.Join([][]byte{[]byte(prom), []byte(salt)}, nil)
+var port = os.Getenv("promPort")
 
-	checkhash := sha256.Sum256(checkBytes)
+var hashVaultPath = ""
+var salt string = os.Getenv("Salt")
 
-	file, err := os.Open(globVault)
+func promgen(timeEnd string) string {
+
+	prom := randStr(prSize)
+	hash := sha256.Sum256(append([]byte(prom), []byte(salt)...))
+	hhex := hex.EncodeToString(hash[:])
+
+	saveHash(hhex)
+
+	switch timeEnd {
+	case "1 month":
+		return fmt.Sprintf("%s_1m_%s", prefix, prom)
+	case "3 months":
+		return fmt.Sprintf("%s_3m_%s", prefix, prom)
+	case "6 month":
+		return fmt.Sprintf("%s_6m_%s", prefix, prom)
+	case "1 year":
+		return fmt.Sprintf("%s_1y_%s", prefix, prom)
+	default:
+		return fmt.Sprintf("%s%s", prefix, prom)
+	}
+}
+
+func isValid(prom string) bool {
+
+	hash := sha256.Sum256(append([]byte(prom), []byte(salt)...))
+
+	file, err := os.Open(hashVaultPath)
 	if err != nil {
 		panic(runtime.PanicNilError{})
 	}
 
 	sc := bufio.NewScanner(file)
 
-	for sc.Scan() {
+	v := make(chan bool)
 
-		line := sc.Text()
-
-		if line == base64.StdEncoding.EncodeToString(checkhash[:]) {
-			//uniq promocode found
-		} else {
-			panic(runtime.PanicNilError{})
+	go func() {
+		for sc.Scan() {
+			line := sc.Text()
+			if line == hex.EncodeToString(hash[:]) {
+				v <- true
+			} else {
+				v <- false
+			}
 		}
-	}
+		close(v)
+	}()
+
+	return <-v
 }
 
 func main() {
 
-	var data *any
-
-	switch grandMode {
-	case "one":
-		*data = [2]interface{}{promgen(prSize)}
-	default:
-		*data = []interface{}{createProms(threads)}
+	http.HandleFunc("/", netHandler)
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		panic(err)
 	}
-
-	saveData(&data)
 }
 
-func createProms(thr int) [][]interface{} {
+func netHandler(w http.ResponseWriter, r *http.Request) {
 
-	var promocodes = make([][]interface{}, nPr)
-	var wg sync.WaitGroup
+	var data userStruct
 
-	job := func() {
-		defer log.Printf("Work (promgen) is done")
+	if r.Method != "GET" {
 
-		for i := 0; i < nPr/thr; i++ {
-			slice := []interface{}{promgen(prSize)}
+		err := json.NewDecoder(r.Body).Decode(&data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-			promocodes = slices.Insert(promocodes, 0, slice)
+		//cookie, err := r.Cookie(fmt.Sprintf("session_%s", data))
+
+		if err != nil {
+			http.Error(w, "Session not found", http.StatusUnauthorized)
+			return
+		} else {
+			fmt.Print("Session is found")
 		}
 	}
 
-	if thr > 1 {
-		for _ = range thr {
-			go job()
-		}
-	} else {
-		go job()
-	}
-	wg.Wait()
+	if !time.Time.Equal(data.timeLeft, time.Now()) {
 
-	return promocodes
+		ch := make(chan struct{})
+
+		go func() {
+			for time.Now().Before(data.timeLeft) {
+				time.Sleep(checkdelay * time.Second)
+			}
+			close(ch)
+		}()
+
+		<-ch
+
+		http.SetCookie(w, &http.Cookie{
+			Name:   "session_id",
+			Value:  "",
+			MaxAge: -1,
+		})
+	}
 }
 
-func saveData(data interface{}) {
+func saveHash(h string) {
 
-	const vault = ""
-
-	file, err := os.Open(vault)
+	file, err := os.Open(hashVaultPath)
 	defer file.Close()
 
 	if err != nil {
 		panic(runtime.PanicNilError{})
 	}
 
-	//writer := bufio.NewWriter()
+	_, err = file.WriteString(h)
+
+	if err != nil {
+		panic(runtime.PanicNilError{})
+	}
 }
-func RandStringBytesMaskImprSrcSB(n int) (string, []byte) {
+
+func randStr(n int) string {
 	sb := strings.Builder{}
 	sb.Grow(n)
 
@@ -130,6 +168,5 @@ func RandStringBytesMaskImprSrcSB(n int) (string, []byte) {
 		cache >>= letterIdxBits
 		remain--
 	}
-
-	return sb.String(), []byte(sb.String())
+	return sb.String()
 }
