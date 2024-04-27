@@ -5,17 +5,19 @@ import (
 	"net/http"
 )
 
-}
-func checkSubscription(userID int) bool {
 
-	return true // For TON FunC Contact
+func checkSubscription(addr string) string {
+
+	return "Free" // TBA
 }
-func sendConfigRequest(subscription string) {
+var subscription string
+func sendConfigRequest(addr string) {
+	subscription = checkSubscription(addr)
 	var url string
 	switch subscription {
-	case "free":
+	case "Free":
 		url = "https://example.com/free-config"
-	case "paid":
+	case "Paid":
 		url = "https://example.com/paid-config"
 	default:
 		fmt.Println("Invalid subscription type")
@@ -32,7 +34,7 @@ func sendConfigRequest(subscription string) {
 	// Process the response if needed
 	// ...
 
-	fmt.Println("Config request sent successfully")
+	fmt.Println(subscription + " config request sent successfully")
 }
 
 
