@@ -22,17 +22,17 @@ const (
 )
 
 type userStruct struct {
-	prom     string
-	timeLeft time.Time
+	prom  string `json:"prom"`
+	sesid string `json:"sesid"`
+	paid  bool   `json:"paid"`
 }
 
 const prSize = 8
 const checkdelay = 60 // SECONDS
 const prefix = "Synt"
 
-var port = os.Getenv("promPort")
-
 var hashVaultPath = ""
+var port = os.Getenv("promPort")
 var salt string = os.Getenv("Salt")
 
 func promgen(timeEnd string) string {
@@ -45,15 +45,13 @@ func promgen(timeEnd string) string {
 
 	switch timeEnd {
 	case "1 month":
-		return fmt.Sprintf("%s_1m_%s", prefix, prom)
+		return fmt.Sprintf("%s_%s_1", prefix, prom)
 	case "3 months":
-		return fmt.Sprintf("%s_3m_%s", prefix, prom)
+		return fmt.Sprintf("%s_%s_3", prefix, prom)
 	case "6 month":
-		return fmt.Sprintf("%s_6m_%s", prefix, prom)
-	case "1 year":
-		return fmt.Sprintf("%s_1y_%s", prefix, prom)
+		return fmt.Sprintf("%s_%s_6", prefix, prom)
 	default:
-		return fmt.Sprintf("%s%s", prefix, prom)
+		return fmt.Sprintf("")
 	}
 }
 
@@ -75,14 +73,21 @@ func isValid(prom string) bool {
 			line := sc.Text()
 			if line == hex.EncodeToString(hash[:]) {
 				v <- true
-			} else {
-				v <- false
+				close(v)
+				return
 			}
+			v <- false
 		}
 		close(v)
 	}()
 
-	return <-v
+	select {
+	case result, ok := <-v:
+		if !ok {
+			return false
+		}
+		return result
+	}
 }
 
 func main() {
@@ -98,7 +103,7 @@ func netHandler(w http.ResponseWriter, r *http.Request) {
 
 	var data userStruct
 
-	if r.Method != "GET" {
+	if r.Method == "GET" {
 
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
@@ -106,34 +111,17 @@ func netHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//cookie, err := r.Cookie(fmt.Sprintf("session_%s", data))
+		if isValid(data.prom) && !data.paid {
 
-		if err != nil {
-			http.Error(w, "Session not found", http.StatusUnauthorized)
-			return
-		} else {
-			fmt.Print("Session is found")
+			data.paid = true
+
+			timer := newTimerOnce()
+			timer.run(time.Hour*24*time.Duration(int(data.prom[len(data.prom)-1])), func() {
+				//
+			})
 		}
-	}
-
-	if !time.Time.Equal(data.timeLeft, time.Now()) {
-
-		ch := make(chan struct{})
-
-		go func() {
-			for time.Now().Before(data.timeLeft) {
-				time.Sleep(checkdelay * time.Second)
-			}
-			close(ch)
-		}()
-
-		<-ch
-
-		http.SetCookie(w, &http.Cookie{
-			Name:   "session_id",
-			Value:  "",
-			MaxAge: -1,
-		})
+	} else {
+		http.Error(w, "", http.StatusBadRequest)
 	}
 }
 
