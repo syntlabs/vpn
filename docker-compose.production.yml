@@ -1,22 +1,22 @@
-version: '3'
-
-volumes:
-  pg_data:
-
+version: '3.8'
 services:
   db:
-    image: postgres:13.10
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: your_password
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   core:
     depends_on:
-    - db
+      - db
     image: syntlabs/vpn_core
     volumes:
-      - pg_data
-  notifications:
-    depends_on:
-      - core
-    image: syntlabs/vpn_notifications
-    volumes:
       - pg_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+  pg_data:
