@@ -4,7 +4,9 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_PASSWORD: your_password
+      POSTGRES_USER: adm
+      POSTGRES_PASSWORD: adm
+      POSTGRES_DB: postgres
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
