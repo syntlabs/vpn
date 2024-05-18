@@ -80,8 +80,7 @@ class SubscriptionStatusViewController: UIViewController {
     func grantAccess() {
         countdownLabel.isHidden = false
         updateCountdown()
-        VPNManager.shared.startVPNTunnel()
-        accessGranted = true
+        userDefaults.set(true, forKey: "accessGranted")
         let alertController = UIAlertController(title: "Success", message: "You have successfully redeemed your promo code and gained access to premium content.", preferredStyle:.alert)
         let okAction = UIAlertAction(title: "OK", style:.default, handler: nil)
         alertController.addAction(okAction)

@@ -74,7 +74,11 @@ class MyViewController: UIViewController {
     @objc func buttonTapped(_ sender: UIButton) {
         switch sender.tag {
         case 1:
-            startServerConnection()
+            if userDefaults.bool(forKey: "accessGranted") {
+                startServerConnection()
+            } else {
+                print("Access denied")
+            }
         case 2, 3, 4:
             popViewController(sender.tag)
         default:
@@ -133,4 +137,3 @@ class MyViewController: UIViewController {
         vpnManager.startVPN()
     }
 }
-
