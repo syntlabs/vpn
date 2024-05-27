@@ -2,52 +2,39 @@ import UIKit
 
 // Struct to hold the data needed for each ViewController
 struct ViewControllerData {
+    let titleText: String
+    let titleColor: UIColor
     let descriptionText: String
+    let descriptionColor: UIColor
     let backgroundColor: UIColor
-    let buttonTitle: String
-    let buttonAction: () -> Void
+    let backgroundImagePath: String
+    let nextButtonTitle: String
+    let nextButtonColor: Color
+    let nextButtonAction: () -> Void
+    let skipButtonTitle: String
+    let skipButtonColor: Color
+    let skipButtonAction: () -> Void
 }
 
 // AbstractViewController is a subclass of UIViewController and serves as a base class for other view controllers
 class AbstractViewController: UIViewController {
+    // IBOutlet for the UILabel that displays the title text
+    @IBOutlet var title: UILabel!
     // IBOutlet for the UILabel that displays the description text
     @IBOutlet var descriptionLabel: UILabel!
     // IBOutlet for the UIButton that triggers the button action
-    @IBOutlet var button: UIButton!
+    @IBOutlet var nextButton: UIButton!
+    // IBOutlet for the UIButton that triggers the skip action
+    @IBOutlet var skipButton: UIButton!
     // IBOutlet for the UIView that creates the parallax effect
     @IBOutlet var parallaxView: UIView!
-
-    // IBInspectable property for the description text
-    @IBInspectable var descriptionText: String?
-    // IBInspectable property for the background color
-    @IBInspectable var backgroundColor: UIColor?
-    // IBInspectable property for the button title
-    @IBInspectable var buttonTitle: String?
-    // IBInspectable property for the button action
-    @IBInspectable var buttonAction: String?
-    // Property to keep track of the current index
-    @IBInspectable var currentIndex: Int = 0
+    // IBOutlet for the UIImage
+    @IBOutlet var backgroundImage: UIImageView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Call the setupUI function to configure the user interface
-        setupUI()
         // Call the updateUI function to update the user interface for the current index
-        updateUI(forIndex: currentIndex)
-    }
-
-    // Function to setup the user interface
-    func setupUI() {
-        // Set the background color of the view to white
-        view.backgroundColor = UIColor.white
-        // Set the background color of the parallaxView to the background color property
-        parallaxView.backgroundColor = backgroundColor
-        // Set the text of the descriptionLabel to the descriptionText property
-        descriptionLabel.text = descriptionText
-        // Set the title of the button to the buttonTitle property
-        button.setTitle(buttonTitle, for: .normal)
-        // Add a target to the button that triggers the buttonTapped function when the button is tapped
-        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        updateUI(forIndex: 0)
     }
 
     // Function to update the user interface for the specified index
@@ -57,47 +44,71 @@ class AbstractViewController: UIViewController {
         // Get the ViewControllerData for the current index
         let viewControllerData = getViewControllerData(forIndex: index)
         // Set the descriptionText property to the descriptionText of the ViewControllerData
-        descriptionText = viewControllerData.descriptionText
+        title.text = viewController.titleText
+        title.textColor = viewController.titleColor
+        descriptionLabel.text = viewControllerData.descriptionText
+        descriptionLabel.textColor = viewControllerData.descriptionColor
         // Set the backgroundColor property to the backgroundColor of the ViewControllerData
-        backgroundColor = viewControllerData.backgroundColor
-        // Set the buttonTitle property to the buttonTitle of the ViewControllerData
-        buttonTitle = viewControllerData.buttonTitle
-        // If the buttonAction property is not nil, remove the current target from the button and add a new target that triggers the specified action when the button is tapped
-        if let actionString = buttonAction, let action = NSSelectorFromString(actionString) {
-            button.removeTarget(nil, action: nil, for: .allEvents)
-            button.addTarget(self, action: action, for: .touchUpInside)
-        }
-        // Call the setupUI function to configure the user interface with the updated properties
-        setupUI()
+        view.backgroundColor = viewControllerData.backgroundColor
+
+        nextButton.setTitle(viewControllerData.nextButtonTitle, forState: UIControlState.Normal)
+        nextButton.backgroundColor = viewControllerData.nextButtonColor
+        nextButton.addTarget(self, action: viewControllerData.nextButtonAction, forControlEvents: UIControlEvents.TouchUpInside)
+
+        skipButton.setTitle(viewControllerData.skipButtonTitle, forState: UIControlState.Normal)
+        skipButton.backgroundColor = viewControllerData.skipButtonColor
+        skipButton.addTarget(self, action: viewControllerData.skipButtonAction, forControlEvents: UIControlEvents.TouchUpInside)
+
+        backgroundImage.image = UIImage(named:viewControllerData.backgroundImagePath)
     }
 
     // Function to get the ViewControllerData for the specified index
     func getViewControllerData(forIndex index: Int) -> ViewControllerData {
         // Array of ViewControllerData objects
+        let skyBlue = Color(red: 0.4627, green: 0.8392, blue: 1.0)
+        let backgroundColor = .black
         let viewControllerDataArray = [
             ViewControllerData(
-                descriptionText: "This is View Controller 1",
-                backgroundColor: .red,
-                buttonTitle: "Next",
-                buttonAction: { [weak self] in self?.nextButtonTapped() }
+                titleText: "Private Browsing",
+                titleColor: .white,
+                descriptionText: "Keep your online actions unseen and secure from external access",
+                descriptionColor: .white,
+                backgroundImagePath: "first_launch_1_backgroundImage.svg",
+                backgroundColor: backgroundColor,
+                nextButtonTitle: "Next",
+                nextButtonColor: skyBlue,
+                nextButtonAction: { [weak self] in self?.nextButtonTapped() },
+                skipButtonTitle: "Skip",
+                skipButtonColor: .clear,
+                skipButtonAction: { [weak self] in self?.skipToMainViewController() }
             ),
             ViewControllerData(
-                descriptionText: "This is View Controller 2",
-                backgroundColor: .green,
-                buttonTitle: "Next",
-                buttonAction: { [weak self] in self?.nextButtonTapped() }
+                titleText: "Unleash Boundless Access",
+                titleColor: .white,
+                descriptionText: "Access content from anywhere bypass geo-restrictions with ease. The whole interner is just a click away.",
+                descriptionColor: .white,
+                backgroundImagePath: "first_launch_2_backgroundImage.svg",
+                backgroundColor: backgroundColor,
+                nextButtonTitle: "Next",
+                nextButtonColor: skyBlue,
+                nextButtonAction: { [weak self] in self?.nextButtonTapped() },
+                skipButtonTitle: "Skip",
+                skipButtonColor: .clear,
+                skipButtonAction: { [weak self] in self?.skipToMainViewController() }
             ),
             ViewControllerData(
-                descriptionText: "This is View Controller 3",
-                backgroundColor: .blue,
-                buttonTitle: "Next",
-                buttonAction: { [weak self] in self?.nextButtonTapped() }
-            ),
-            ViewControllerData(
-                descriptionText: "This is View Controller 4",
-                backgroundColor: .yellow,
-                buttonTitle: "Lets go!",
-                buttonAction: { [weak self] in self?.skipToMainViewController() }
+                titleText: "Choose Your Path",
+                titleColor: .white,
+                descriptionText: "Customizable VPN protocols to suit Whether it's streaming or we've got you covered",
+                descriptionColor: .white,
+                backgroundImagePath: "first_launch_3_backgroundImage.svg",
+                backgroundColor: backgroundColor,
+                nextButtonTitle: "Next",
+                nextButtonColor: skyBlue,
+                nextButtonAction: { [weak self] in self?.nextButtonTapped() },
+                skipButtonTitle: "Skip",
+                skipButtonColor: .clear,
+                skipButtonAction: { [weak self] in self?.skipToMainViewController() }
             )
         ]
         // Return the ViewControllerData object at the specified index
